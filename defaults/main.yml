@@ -1,0 +1,26 @@
+---
+haproxy_public_ports: []
+#  - service: http
+#  - service: https
+#  - port: 8080/tcp
+
+#haproxy_frontends:
+#  - name: www.domain.com
+#    bind: x.x.x.x ssl crt /etc/ssl/certs/domain.pem ssl-min-ver TLSv1.2
+#    bind: :80
+#    bind:
+#       - :80
+#       - :443 ssl crt /etc/ssl/certs/domain.pem
+#    mode: ssl | http | tcp # default http
+#    options:
+#      - text_for_option
+#    default_backend: web_servers
+#haproxy_backends:
+#  - name: www.domain.com
+#    balance: roundrobin
+#    servers:
+#      - name: www1
+#        address: x.x.x.x:80
+#      - name: www2 
+#        address: x.x.x.x:80
+#        params: check maxconn 20 ssl

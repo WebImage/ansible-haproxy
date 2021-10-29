@@ -1,0 +1,64 @@
+# {{ ansible_managed }}
+#---------------------------------------------------------------------
+# Example configuration for a possible web application.  See the
+# full configuration options online.
+#
+#   http://haproxy.1wt.eu/download/1.4/doc/configuration.txt
+#
+#---------------------------------------------------------------------
+
+defaults
+  log global
+  mode http
+  option httplog
+  option dontlognull
+  timeout connect 5000
+  timeout client 50000
+  timeout server 50000
+
+{% for frontend in haproxy_frontends %}
+frontend {{ frontend.name }}
+  {% if frontend.bind is iterable and frontend.bind is not string and frontend.bind is not mapping %}
+  {% for bind_address in frontend.bind %}
+    bind {{ bind_address }}
+  {% endfor %}
+  {% else %}
+  bind {{ frontend.bind }}
+  {% endif %}
+{% if frontend.mode is defined %}
+  mode {{ frontend.mode }}
+{% endif %}
+{% if frontend.options is defined %}
+{% for option in frontend.options %}
+  option {{ option }}
+{% endfor %}
+{% endif %}
+  # stats uri /haproxy?stats
+{% if frontend.default_backend is defined %}
+  default_backend {{ frontend.default_backend }}
+{% endif %}
+{% if frontend.extra is defined %}
+  {{ frontend.extra | indent(width=2, indentfirst=False) }}
+{% endif %}
+
+{% endfor %}
+{% for backend in haproxy_backends %}
+backend {{ backend.name }}
+  balance {{ backend.balance }}
+{% if backend.mode is defined %}
+  mode {{ backend.mode }}
+{% endif %}
+{% for server in backend.servers %}
+  server {{ server.name }} {{ server.address }}
+{% endfor %}
+{% if backend.options is defined %}
+{% for option in backend.options %}
+  option {{ option }}
+{% endfor %}
+{% endif %}
+
+{% if backend.extra is defined %}
+  {{ backend.extra | indent(width=2, indentfirst=False) }}
+{% endif %}
+
+{% endfor %}

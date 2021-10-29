@@ -1,0 +1,35 @@
+---
+- name: Ensure HAProxy is installed
+  yum:
+    name: haproxy
+    state: present
+
+- name: Copy HAProxy config
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    mode: 0644
+    validate: haproxy -f %s -c -q
+  notify: Restart HAProxy
+
+- name: Ensure HAProxy is started and enabled at boot
+  service:
+    name: haproxy
+    state: started
+    enabled: true
+#- name: Open HAProxy public ports
+#  iptables:
+#    chain: IN_public_allow
+#    protocol: tcp
+#    destination_port: "80"
+#    jump: ACCEPT
+
+- name: Open HAProxy public ports
+  firewalld:
+    port: "{{ item.port | default(omit) }}"
+    service: "{{ item.service | default(omit) }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  when: ansible_distribution_file_variety == 'RedHat'
+  with_items: "{{ haproxy_public_ports }}"
